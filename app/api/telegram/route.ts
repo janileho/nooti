@@ -37,9 +37,13 @@ export async function POST(req: Request) {
     const current = (await readInfo()) as ShopInfo;
     const cmd = await parseCommandWithAI(text, { hours: current.hours });
     let confirmation = "";
+    let ack: string | null = null;
 
     switch (cmd.type) {
       case "set_hours": {
+        ack = cmd.closed
+          ? `Sending changes: <b>${cmd.days}</b> → closed`
+          : `Sending changes: <b>${cmd.days}</b> → ${cmd.open}–${cmd.close}`;
         const other = current.hours.filter((h) => h.days !== cmd.days);
         const entry = cmd.closed
           ? { days: cmd.days, closed: true as const }
@@ -55,6 +59,15 @@ export async function POST(req: Request) {
         const labels = new Set(["Mon–Fri", "Sat", "Sun"]);
         const filtered = current.hours.filter((h) => !labels.has(h.days));
         const merged = [...filtered];
+        ack =
+          "Sending changes:" +
+          cmd.entries
+            .map((e) =>
+              e.closed
+                ? `\n• <b>${e.days}</b> → closed`
+                : `\n• <b>${e.days}</b> → ${e.open}–${e.close}`
+            )
+            .join("");
         for (const e of cmd.entries) {
           const rest = merged.filter((h) => h.days !== e.days);
           const item = e.closed
@@ -68,24 +81,28 @@ export async function POST(req: Request) {
         break;
       }
       case "set_address": {
+        ack = `Sending changes: address → <b>${cmd.address}, ${cmd.city}</b>`;
         const next = { ...current, address: cmd.address, city: cmd.city };
         await writeInfo(next);
         confirmation = `Address updated: <b>${cmd.address}, ${cmd.city}</b>`;
         break;
       }
       case "set_name": {
+        ack = `Sending changes: name → <b>${cmd.name}</b>`;
         const next = { ...current, name: cmd.name };
         await writeInfo(next);
         confirmation = `Name updated: <b>${cmd.name}</b>`;
         break;
       }
       case "set_bg": {
+        ack = `Sending changes: background → updated`;
         const next = { ...current, backgroundUrl: cmd.url };
         await writeInfo(next);
         confirmation = `Background updated.`;
         break;
       }
       case "push": {
+        ack = `Sending changes: pushing current info to GitHub…`;
         const owner = process.env.GITHUB_OWNER || "janileho";
         const repo = process.env.GITHUB_REPO || "nooti";
         const branch = process.env.GITHUB_BRANCH || "main";
@@ -114,11 +131,32 @@ export async function POST(req: Request) {
 
     revalidatePath("/");
 
-    if (chatId) {
+    // Send early acknowledgement
+    if (chatId && ack) {
       await sendTelegramMessage({
         botToken: process.env.TELEGRAM_BOT_TOKEN,
         chatId,
-        text: confirmation,
+        text: ack,
+      });
+    }
+
+    // Optional: trigger deploy hook if configured
+    const deployHook = process.env.VERCEL_DEPLOY_HOOK_URL;
+    if (deployHook) {
+      try {
+        await fetch(deployHook, { method: "POST" });
+      } catch {
+        // ignore deploy errors for chat UX
+      }
+    }
+
+    // Final confirmation
+    if (chatId) {
+      const tail = deployHook ? "\nThe updates should be deployed now." : "";
+      await sendTelegramMessage({
+        botToken: process.env.TELEGRAM_BOT_TOKEN,
+        chatId,
+        text: `${confirmation}${tail}`,
       });
     }
   } catch (e) {

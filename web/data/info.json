@@ -33,10 +33,12 @@
     },
     {
       "day": "Sat",
-      "closed": true
+      "open": "12:00",
+      "close": "19:00",
+      "closed": false
     }
   ],
   "backgroundUrl": "/retro-fallback",
-  "weeklyNote": "This week:  \n• Lemon crème brûlée  \n• Macarons",
-  "updatedAt": "2025-08-09T18:56:31.837Z"
+  "weeklyNote": "Tarjolla tällä viikolla:  \nTuoretta crème brûléeä",
+  "updatedAt": "2025-08-09T18:58:27.106Z"
 }

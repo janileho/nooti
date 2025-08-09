@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readInfo, writeInfo, type ShopInfo } from "@/lib/infoStore";
 import { writeRepoFile } from "@/lib/githubContent";
 import { revalidatePath } from "next/cache";
-import { parseCommandWithAI, sendTelegramMessage } from "@/lib/ai";
+import { parseCommandWithAI, sendTelegramMessage, generateFriendlyReply } from "@/lib/ai";
 
 // Simple Telegram bot webhook handler
 // Expects messages like: "set hours Mon–Fri 09:00-19:00" or "set address 45 Vinyl Ave, Helsinki"
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
         break;
       }
       default: {
-        confirmation = `Sorry, I couldn't understand. Try: set hours, set address, set name, set bg, push.`;
+        confirmation = await generateFriendlyReply(text);
       }
     }
 

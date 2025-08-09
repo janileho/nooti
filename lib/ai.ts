@@ -74,3 +74,21 @@ export async function sendTelegramMessage(opts: { botToken?: string; chatId: num
   });
 }
 
+export async function generateFriendlyReply(message: string, context?: { name?: string; city?: string }) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return `I’m here. I couldn’t map that to a command. Try: “set hours Mon–Fri 09:00-19:00”, “set address 45 Vinyl Ave, Helsinki”, “set name Nooti Coffee”, “set bg https://…”, or “push”.`;
+  }
+  const client = new OpenAI({ apiKey });
+  const sys = `You are a concise barista-bot. You respond in one or two short sentences, friendly and clear. If asked to change hours or address, suggest the exact command format, but do not invent facts.`;
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.7,
+    messages: [
+      { role: "system", content: sys },
+      { role: "user", content: message },
+    ],
+  });
+  return completion.choices[0]?.message?.content?.trim() || "Got it.";
+}
+

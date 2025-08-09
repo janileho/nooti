@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { writeRepoFile } from "@/lib/githubContent";
 
 export type ShopInfo = {
   name: string;
@@ -31,6 +32,13 @@ const DEFAULT_INFO: ShopInfo = {
   backgroundUrl: "/retro-fallback",
 };
 
+function getRemoteInfoUrl() {
+  const owner = process.env.GITHUB_OWNER || "janileho";
+  const repo = process.env.GITHUB_REPO || "nooti";
+  const branch = process.env.GITHUB_BRANCH || "main";
+  return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/web/data/info.json`;
+}
+
 export async function ensureSeed(): Promise<void> {
   try {
     await fs.access(DATA_FILE);
@@ -41,6 +49,17 @@ export async function ensureSeed(): Promise<void> {
 }
 
 export async function readInfo(): Promise<ShopInfo> {
+  if (isServerless) {
+    try {
+      const url = getRemoteInfoUrl();
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        return (await res.json()) as ShopInfo;
+      }
+    } catch {
+      // ignore and fall back to local tmp file
+    }
+  }
   await ensureSeed();
   const raw = await fs.readFile(DATA_FILE, "utf8");
   return JSON.parse(raw) as ShopInfo;
@@ -49,5 +68,21 @@ export async function readInfo(): Promise<ShopInfo> {
 export async function writeInfo(next: ShopInfo): Promise<void> {
   await ensureSeed();
   await fs.writeFile(DATA_FILE, JSON.stringify(next, null, 2), "utf8");
+  // Persist to GitHub as the source of truth for serverless environments
+  const token = process.env.GITHUB_TOKEN;
+  if (token) {
+    const owner = process.env.GITHUB_OWNER || "janileho";
+    const repo = process.env.GITHUB_REPO || "nooti";
+    const branch = process.env.GITHUB_BRANCH || "main";
+    await writeRepoFile({
+      owner,
+      repo,
+      branch,
+      token,
+      path: "web/data/info.json",
+      message: `chore: update site info ${new Date().toISOString()}`,
+      content: JSON.stringify(next, null, 2),
+    });
+  }
 }
 

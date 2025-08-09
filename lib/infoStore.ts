@@ -2,11 +2,14 @@ import { promises as fs } from "fs";
 import path from "path";
 import { writeRepoFile } from "@/lib/githubContent";
 
+export type DayKey = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+export type DayHours = { day: DayKey; open?: string; close?: string; closed?: boolean };
+
 export type ShopInfo = {
   name: string;
   address: string;
   city: string;
-  hours: { days: string; open?: string; close?: string; closed?: boolean }[];
+  hours: DayHours[];
   backgroundUrl: string;
 };
 
@@ -25,9 +28,13 @@ const DEFAULT_INFO: ShopInfo = {
   address: "123 Groove St",
   city: "Helsinki",
   hours: [
-    { days: "Mon–Fri", open: "08:00", close: "18:00", closed: false },
-    { days: "Sat", open: "09:00", close: "17:00", closed: false },
-    { days: "Sun", open: "10:00", close: "16:00", closed: false },
+    { day: "Mon", open: "08:00", close: "18:00", closed: false },
+    { day: "Tue", open: "08:00", close: "18:00", closed: false },
+    { day: "Wed", open: "08:00", close: "18:00", closed: false },
+    { day: "Thu", open: "08:00", close: "18:00", closed: false },
+    { day: "Fri", open: "08:00", close: "18:00", closed: false },
+    { day: "Sat", open: "09:00", close: "17:00", closed: false },
+    { day: "Sun", open: "10:00", close: "16:00", closed: false },
   ],
   backgroundUrl: "/retro-fallback",
 };
@@ -49,12 +56,40 @@ export async function ensureSeed(): Promise<void> {
 }
 
 export async function readInfo(): Promise<ShopInfo> {
+  const normalize = (data: any): ShopInfo => {
+    // If already per-day structure
+    if (Array.isArray(data?.hours) && data.hours.length && data.hours[0]?.day) {
+      return data as ShopInfo;
+    }
+    // Legacy grouped structure → expand to per-day
+    const perDay: DayHours[] = [];
+    const pushRange = (days: DayKey[], open?: string, close?: string, closed?: boolean) => {
+      for (const d of days) perDay.push({ day: d, open, close, closed });
+    };
+    const weekdays: DayKey[] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const sat: DayKey[] = ["Sat"];
+    const sun: DayKey[] = ["Sun"];
+    for (const h of data?.hours || []) {
+      if (h.days === "Mon–Fri") pushRange(weekdays, h.open, h.close, h.closed ?? false);
+      else if (h.days === "Sat") pushRange(sat, h.open, h.close, h.closed ?? false);
+      else if (h.days === "Sun") pushRange(sun, h.open, h.close, h.closed ?? false);
+    }
+    return {
+      name: data?.name ?? DEFAULT_INFO.name,
+      address: data?.address ?? DEFAULT_INFO.address,
+      city: data?.city ?? DEFAULT_INFO.city,
+      hours: perDay.length ? perDay : DEFAULT_INFO.hours,
+      backgroundUrl: data?.backgroundUrl ?? DEFAULT_INFO.backgroundUrl,
+    };
+  };
+
   if (isServerless) {
     try {
       const url = getRemoteInfoUrl();
       const res = await fetch(url, { cache: "no-store" });
       if (res.ok) {
-        return (await res.json()) as ShopInfo;
+        const data = await res.json();
+        return normalize(data);
       }
     } catch {
       // ignore and fall back to local tmp file
@@ -62,7 +97,7 @@ export async function readInfo(): Promise<ShopInfo> {
   }
   await ensureSeed();
   const raw = await fs.readFile(DATA_FILE, "utf8");
-  return JSON.parse(raw) as ShopInfo;
+  return normalize(JSON.parse(raw));
 }
 
 export async function writeInfo(next: ShopInfo): Promise<void> {

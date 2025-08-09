@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readInfo, writeInfo, type ShopInfo } from "@/lib/infoStore";
+import { readInfo, writeInfo, type ShopInfo, type DayKey } from "@/lib/infoStore";
 import { writeRepoFile } from "@/lib/githubContent";
 import { revalidatePath } from "next/cache";
 import { parseCommandWithAI, sendTelegramMessage, generateFriendlyReply } from "@/lib/ai";
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
   try {
     const current = (await readInfo()) as ShopInfo;
-    const cmd = await parseCommandWithAI(text, { hours: current.hours });
+    const cmd = await parseCommandWithAI(text, { hours: current.hours as any });
     let confirmation = "";
     let ack: string | null = null;
 
@@ -44,10 +44,10 @@ export async function POST(req: Request) {
         ack = cmd.closed
           ? `Sending changes: <b>${cmd.days}</b> → closed`
           : `Sending changes: <b>${cmd.days}</b> → ${cmd.open}–${cmd.close}`;
-        const other = current.hours.filter((h) => h.days !== cmd.days);
+        const other = current.hours.filter((h: any) => h.day !== cmd.days && h.days !== cmd.days);
         const entry = cmd.closed
-          ? { days: cmd.days, closed: true as const }
-          : { days: cmd.days, open: cmd.open!, close: cmd.close!, closed: false };
+          ? { day: cmd.days as DayKey, closed: true as const }
+          : { day: cmd.days as DayKey, open: cmd.open!, close: cmd.close!, closed: false };
         const next = { ...current, hours: [...other, entry] };
         await writeInfo(next);
         confirmation = cmd.closed
@@ -56,9 +56,14 @@ export async function POST(req: Request) {
         break;
       }
       case "set_hours_bulk": {
-        const labels = new Set(["Mon–Fri", "Sat", "Sun"]);
-        const filtered = current.hours.filter((h) => !labels.has(h.days));
-        const merged = [...filtered];
+        const expandDays = (label: string): DayKey[] => {
+          if (label === "Mon–Fri") return ["Mon", "Tue", "Wed", "Thu", "Fri"];
+          if (label === "Sat") return ["Sat"];
+          if (label === "Sun") return ["Sun"];
+          return [label as DayKey];
+        };
+
+        const merged = [...current.hours];
         ack =
           "Sending changes:" +
           cmd.entries
@@ -69,11 +74,14 @@ export async function POST(req: Request) {
             )
             .join("");
         for (const e of cmd.entries) {
-          const rest = merged.filter((h) => h.days !== e.days);
-          const item = e.closed
-            ? { days: e.days, closed: true as const }
-            : { days: e.days, open: e.open!, close: e.close!, closed: false };
-          merged.splice(0, merged.length, ...rest, item);
+          const targets = expandDays(e.days);
+          for (const day of targets) {
+            const rest = merged.filter((h: any) => h.day !== day);
+            const item = e.closed
+              ? { day, closed: true as const }
+              : { day, open: e.open!, close: e.close!, closed: false };
+            merged.splice(0, merged.length, ...rest, item);
+          }
         }
         const next = { ...current, hours: merged };
         await writeInfo(next);

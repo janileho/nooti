@@ -1,19 +1,23 @@
 import Image from "next/image";
 export const dynamic = "force-dynamic";
-import { readInfo, type ShopInfo } from "@/lib/infoStore";
+import { readInfo, type ShopInfo, type DayHours } from "@/lib/infoStore";
 
 async function getInfo(): Promise<ShopInfo> {
   try {
     return await readInfo();
   } catch {
     return {
-      name: "Nooti Coffee",
+      name: "Nöösi",
       address: "123 Groove St",
       city: "Helsinki",
       hours: [
-        { days: "Mon–Fri", open: "08:00", close: "18:00" },
-        { days: "Sat", open: "09:00", close: "17:00" },
-        { days: "Sun", open: "10:00", close: "16:00" },
+        { day: "Mon", open: "08:00", close: "18:00", closed: false },
+        { day: "Tue", open: "08:00", close: "18:00", closed: false },
+        { day: "Wed", open: "08:00", close: "18:00", closed: false },
+        { day: "Thu", open: "08:00", close: "18:00", closed: false },
+        { day: "Fri", open: "08:00", close: "18:00", closed: false },
+        { day: "Sat", open: "09:00", close: "17:00", closed: false },
+        { day: "Sun", open: "10:00", close: "16:00", closed: false },
       ],
       backgroundUrl:
         "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=60",
@@ -53,18 +57,29 @@ export default async function Home() {
               Opening Hours
             </h2>
             <ul className="mt-3 space-y-2">
-              {info.hours.map((h) => (
-                <li key={h.days} className="flex items-center justify-between text-[15px]">
-                  <span className="text-[var(--foreground)]/92">{h.days}</span>
-                  {h.closed ? (
-                    <span className="uppercase tracking-widest text-[var(--foreground)]/70">Closed</span>
-                  ) : (
-                    <span className="tabular-nums text-[var(--foreground)]/92">
-                      {h.open} – {h.close}
-                    </span>
-                  )}
-                </li>
-              ))}
+              {([
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat",
+                "Sun",
+              ] as DayHours["day"][]).map((day) => {
+                const h = info.hours.find((x) => x.day === day);
+                return (
+                  <li key={day} className="flex items-center justify-between text-[15px]">
+                    <span className="text-[var(--foreground)]/92">{day}</span>
+                    {h?.closed ? (
+                      <span className="uppercase tracking-widest text-[var(--foreground)]/70">Closed</span>
+                    ) : (
+                      <span className="tabular-nums text-[var(--foreground)]/92">
+                        {h?.open} – {h?.close}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

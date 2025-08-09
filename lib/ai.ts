@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 export type ParsedCommand =
   | { type: "set_hours"; days: string; open?: string; close?: string; closed?: boolean }
-  | { type: "set_hours_bulk"; entries: { days: "Mon–Fri" | "Sat" | "Sun"; open?: string; close?: string; closed?: boolean }[] }
+  | { type: "set_hours_bulk"; entries: { days: "Mon–Fri" | "Sat" | "Sun" | "Mon" | "Tue" | "Wed" | "Thu" | "Fri"; open?: string; close?: string; closed?: boolean }[] }
   | { type: "set_address"; address: string; city: string }
   | { type: "set_name"; name: string }
   | { type: "set_bg"; url: string }

@@ -4,29 +4,41 @@
   "city": "Helsinki",
   "hours": [
     {
-      "day": "Mon",
-      "open": "12:00",
-      "close": "18:00",
-      "closed": false
+      "day": "Tue–Fri",
+      "closed": true
     },
     {
-      "day": "Tue–Fri",
+      "day": "Mon",
+      "closed": true
+    },
+    {
+      "day": "Tue",
+      "closed": true
+    },
+    {
+      "day": "Wed",
+      "closed": true
+    },
+    {
+      "day": "Thu",
+      "closed": true
+    },
+    {
+      "day": "Fri",
       "closed": true
     },
     {
       "day": "Sat",
       "open": "16:00",
-      "close": "22:00",
+      "close": "20:00",
       "closed": false
     },
     {
       "day": "Sun",
-      "open": "17:00",
-      "close": "20:00",
-      "closed": false
+      "closed": true
     }
   ],
   "backgroundUrl": "/retro-fallback",
   "weeklyNote": "we got creme brule",
-  "updatedAt": "2025-08-09T17:56:13.672Z"
+  "updatedAt": "2025-08-09T18:09:00.111Z"
 }

@@ -118,7 +118,6 @@ export default async function Home() {
 
           <div className="mt-8 flex items-center gap-3 text-xs text-[var(--foreground)]/70 copy-future">
             <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)] shadow-[0_0_8px_rgba(226,183,20,0.5)]" />
-            <span>Tarjolla viiniä, kahvia sekä tuoreita leivonnaisia!</span>
           </div>
         </div>
       </main>

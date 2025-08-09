@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readInfo, writeInfo, type ShopInfo } from "@/lib/infoStore";
+import { writeRepoFile } from "@/lib/githubContent";
 import { revalidatePath } from "next/cache";
 
 // Simple Telegram bot webhook handler
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
   // - set address <address>, <city>
   // - set name <name>
   // - set bg <url>
+  // - push (commit current data/info.json to GitHub)
   try {
     const current = (await readInfo()) as ShopInfo;
 
@@ -66,6 +68,27 @@ export async function POST(req: Request) {
       const backgroundUrl = text.slice("set bg ".length).trim();
       const next = { ...current, backgroundUrl };
       await writeInfo(next);
+    } else if (lower === "push") {
+      // Commit the current data/info.json to GitHub to record the change
+      const owner = process.env.GITHUB_OWNER || "janileho";
+      const repo = process.env.GITHUB_REPO || "nooti";
+      const branch = process.env.GITHUB_BRANCH || "main";
+      const token = process.env.GITHUB_TOKEN || "";
+
+      if (!token) {
+        console.warn("Missing GITHUB_TOKEN; cannot push");
+      } else {
+        const content = JSON.stringify(await readInfo(), null, 2);
+        await writeRepoFile({
+          owner,
+          repo,
+          branch,
+          token,
+          path: "web/data/info.json",
+          message: `chore: update hours/location via Telegram ${new Date().toISOString()}`,
+          content,
+        });
+      }
     }
     revalidatePath("/");
   } catch (e) {

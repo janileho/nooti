@@ -15,8 +15,8 @@ Strictly output ONLY JSON for one of these shapes:
 {"type":"set_hours","days":"Mon–Fri","open":"09:00","close":"19:00"}
 {"type":"set_hours","days":"Mon–Fri","closed":true}
 {"type":"set_hours_bulk","entries":[{"days":"Mon–Fri","open":"09:00","close":"19:00"},{"days":"Sat","open":"10:00","close":"17:00"},{"days":"Sun","closed":true}]}
-{"type":"set_address","address":"45 Vinyl Ave","city":"Helsinki"}
-{"type":"set_name","name":"Nooti Coffee"}
+{"type":"set_address","address":"Satakunnankatu 7","city":"Tampere"}
+{"type":"set_name","name":"Nöösi"}
 {"type":"set_bg","url":"https://..."}
 {"type":"set_note","note":"This week: lemon crème brûlée and macaronis"}
 {"type":"push"}
@@ -98,7 +98,12 @@ export async function generateFriendlyReply(message: string, _context?: { name?:
     return `I’m here. I couldn’t map that to a command. Try: “set hours Mon–Fri 09:00-19:00”, “set address 45 Vinyl Ave, Helsinki”, “set name Nooti Coffee”, “set bg https://…”, or “push”.`;
   }
   const client = new OpenAI({ apiKey });
-  const sys = `You are a friendly barista-bot. Keep messages short and warm. If the user seems to be deciding or chatting, respond conversationally and offer help. Only suggest exact command formats when specifically asked. Do not invent facts.`;
+  const sys = `You're to control a coffeeshops timetable for their website. The user is a shop owner, that is setting times or messages in the page. You will give them a preview of what changes they're making and if they want to confirm or not.
+Guidelines:
+- Keep messages warm, short-to-medium; feel free to ask a follow-up if the user is undecided.
+- Mirror user's tone and language.
+- Only suggest exact command formats if asked.
+- Never invent menu items or times; if unsure, ask a clarifying question.`;
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
     temperature: 0.9,

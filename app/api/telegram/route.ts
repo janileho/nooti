@@ -59,6 +59,9 @@ export async function POST(req: Request) {
     const echoHtml = htmlEscape(text).slice(0, 400);
     const echoLine = `As you said: <i>“${echoHtml}”</i>`;
 
+    const wantChatty = (process.env.TELEGRAM_CHATTY || "true").toLowerCase() !== "false";
+    const chatty = wantChatty ? await generateFriendlyReply(effectiveText) : "";
+
     switch (cmd.type) {
       case "set_hours": {
         ack = cmd.closed
@@ -188,7 +191,9 @@ export async function POST(req: Request) {
 
     // Send early acknowledgement (with echo)
     if (chatId && ack) {
-      const ackWithEcho = `${ack}\n${echoLine}`;
+      const ackWithEcho = chatty
+        ? `${ack}\n${chatty}\n${echoLine}`
+        : `${ack}\n${echoLine}`;
       await sendTelegramMessage({
         botToken: process.env.TELEGRAM_BOT_TOKEN,
         chatId,
@@ -209,7 +214,9 @@ export async function POST(req: Request) {
     // Final confirmation (with echo)
     if (chatId) {
       const tail = deployHook ? "\nThe updates should be deployed now." : "";
-      const finalWithEcho = `${confirmation}\n${echoLine}${tail}`;
+      const finalWithEcho = chatty
+        ? `${confirmation}\n${chatty}\n${echoLine}${tail}`
+        : `${confirmation}\n${echoLine}${tail}`;
       await sendTelegramMessage({
         botToken: process.env.TELEGRAM_BOT_TOKEN,
         chatId,

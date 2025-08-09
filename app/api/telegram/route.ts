@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readInfo, writeInfo, type ShopInfo, type DayKey } from "@/lib/infoStore";
+import { readInfo, writeInfo, type ShopInfo, type DayKey, type DayHours } from "@/lib/infoStore";
 import { writeRepoFile } from "@/lib/githubContent";
 import { revalidatePath } from "next/cache";
 import { parseCommandWithAI, sendTelegramMessage, generateFriendlyReply } from "@/lib/ai";
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
   try {
     const current = (await readInfo()) as ShopInfo;
-    const cmd = await parseCommandWithAI(text, { hours: current.hours as any });
+    const cmd = await parseCommandWithAI(text, { hours: current.hours });
     let confirmation = "";
     let ack: string | null = null;
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         ack = cmd.closed
           ? `Sending changes: <b>${cmd.days}</b> → closed`
           : `Sending changes: <b>${cmd.days}</b> → ${cmd.open}–${cmd.close}`;
-        const other = current.hours.filter((h: any) => h.day !== cmd.days && h.days !== cmd.days);
+        const other = current.hours.filter((h) => h.day !== (cmd.days as DayKey));
         const entry = cmd.closed
           ? { day: cmd.days as DayKey, closed: true as const }
           : { day: cmd.days as DayKey, open: cmd.open!, close: cmd.close!, closed: false };
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
         for (const e of cmd.entries) {
           const targets = expandDays(e.days);
           for (const day of targets) {
-            const rest = merged.filter((h: any) => h.day !== day);
+            const rest = merged.filter((h: DayHours) => h.day !== day);
             const item = e.closed
               ? { day, closed: true as const }
               : { day, open: e.open!, close: e.close!, closed: false };

@@ -56,10 +56,16 @@ export async function ensureSeed(): Promise<void> {
 }
 
 export async function readInfo(): Promise<ShopInfo> {
-  const normalize = (data: any): ShopInfo => {
+  type LegacyHour = { days: string; open?: string; close?: string; closed?: boolean };
+  const normalize = (data: unknown): ShopInfo => {
+    const obj = data as { name?: string; address?: string; city?: string; backgroundUrl?: string; hours?: LegacyHour[] } | undefined;
     // If already per-day structure
-    if (Array.isArray(data?.hours) && data.hours.length && data.hours[0]?.day) {
-      return data as ShopInfo;
+    if (
+      Array.isArray(obj?.hours) &&
+      (obj.hours as Array<{ day?: unknown }>).length > 0 &&
+      Boolean((obj.hours as Array<{ day?: unknown }>)[0]?.day)
+    ) {
+      return obj as unknown as ShopInfo;
     }
     // Legacy grouped structure → expand to per-day
     const perDay: DayHours[] = [];
@@ -69,17 +75,17 @@ export async function readInfo(): Promise<ShopInfo> {
     const weekdays: DayKey[] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
     const sat: DayKey[] = ["Sat"];
     const sun: DayKey[] = ["Sun"];
-    for (const h of data?.hours || []) {
+    for (const h of (obj?.hours as LegacyHour[] | undefined) || []) {
       if (h.days === "Mon–Fri") pushRange(weekdays, h.open, h.close, h.closed ?? false);
       else if (h.days === "Sat") pushRange(sat, h.open, h.close, h.closed ?? false);
       else if (h.days === "Sun") pushRange(sun, h.open, h.close, h.closed ?? false);
     }
     return {
-      name: data?.name ?? DEFAULT_INFO.name,
-      address: data?.address ?? DEFAULT_INFO.address,
-      city: data?.city ?? DEFAULT_INFO.city,
+      name: obj?.name ?? DEFAULT_INFO.name,
+      address: obj?.address ?? DEFAULT_INFO.address,
+      city: obj?.city ?? DEFAULT_INFO.city,
       hours: perDay.length ? perDay : DEFAULT_INFO.hours,
-      backgroundUrl: data?.backgroundUrl ?? DEFAULT_INFO.backgroundUrl,
+      backgroundUrl: obj?.backgroundUrl ?? DEFAULT_INFO.backgroundUrl,
     };
   };
 

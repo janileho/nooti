@@ -28,7 +28,7 @@ Rules:
 
 export async function parseCommandWithAI(
   message: string,
-  context?: { hours?: { days: string; open?: string; close?: string; closed?: boolean }[] }
+  _context?: { hours?: Array<{ day?: string; days?: string; open?: string; close?: string; closed?: boolean }> }
 ): Promise<ParsedCommand> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -58,8 +58,8 @@ export async function parseCommandWithAI(
     temperature: 0,
     messages: [
       { role: "system", content: system },
-      ...(context?.hours
-        ? [{ role: "system", content: `Current hours: ${JSON.stringify(context.hours)}` } as const]
+      ...(_context?.hours
+        ? [{ role: "system", content: `Current hours: ${JSON.stringify(_context.hours)}` } as const]
         : []),
       { role: "user", content: message },
     ],
@@ -89,7 +89,7 @@ export async function sendTelegramMessage(opts: { botToken?: string; chatId: num
   });
 }
 
-export async function generateFriendlyReply(message: string, context?: { name?: string; city?: string }) {
+export async function generateFriendlyReply(message: string, _context?: { name?: string; city?: string }) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return `I’m here. I couldn’t map that to a command. Try: “set hours Mon–Fri 09:00-19:00”, “set address 45 Vinyl Ave, Helsinki”, “set name Nooti Coffee”, “set bg https://…”, or “push”.`;

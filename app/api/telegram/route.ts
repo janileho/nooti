@@ -39,6 +39,15 @@ export async function POST(req: Request) {
     let confirmation = "";
     let ack: string | null = null;
 
+    const htmlEscape = (s: string) =>
+      s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    const echoHtml = htmlEscape(text).slice(0, 400);
+    const echoLine = `As you said: <i>“${echoHtml}”</i>`;
+
     switch (cmd.type) {
       case "set_hours": {
         ack = cmd.closed
@@ -147,12 +156,13 @@ export async function POST(req: Request) {
 
     revalidatePath("/");
 
-    // Send early acknowledgement
+    // Send early acknowledgement (with echo)
     if (chatId && ack) {
+      const ackWithEcho = `${ack}\n${echoLine}`;
       await sendTelegramMessage({
         botToken: process.env.TELEGRAM_BOT_TOKEN,
         chatId,
-        text: ack,
+        text: ackWithEcho,
       });
     }
 
@@ -166,13 +176,14 @@ export async function POST(req: Request) {
       }
     }
 
-    // Final confirmation
+    // Final confirmation (with echo)
     if (chatId) {
       const tail = deployHook ? "\nThe updates should be deployed now." : "";
+      const finalWithEcho = `${confirmation}\n${echoLine}${tail}`;
       await sendTelegramMessage({
         botToken: process.env.TELEGRAM_BOT_TOKEN,
         chatId,
-        text: `${confirmation}${tail}`,
+        text: finalWithEcho,
       });
     }
   } catch (e) {

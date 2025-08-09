@@ -32,8 +32,8 @@ const leagueSpartan = League_Spartan({
 });
 
 export const metadata: Metadata = {
-  title: "Nooti Coffee — 60s/70s Vibes",
-  description: "Minimal retro coffeeshop page with hours and location.",
+  title: "Cafe Nöösi",
+  description: "cafeism, bauhaus, retrofuturism | Tampere | Satakunnankatu 7",
 };
 
 export default function RootLayout({

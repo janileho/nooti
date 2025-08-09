@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 
 export type ParsedCommand =
-  | { type: "set_hours"; days: string; open: string; close: string }
-  | { type: "set_hours_bulk"; entries: { days: "Mon–Fri" | "Sat" | "Sun"; open: string; close: string }[] }
+  | { type: "set_hours"; days: string; open?: string; close?: string; closed?: boolean }
+  | { type: "set_hours_bulk"; entries: { days: "Mon–Fri" | "Sat" | "Sun"; open?: string; close?: string; closed?: boolean }[] }
   | { type: "set_address"; address: string; city: string }
   | { type: "set_name"; name: string }
   | { type: "set_bg"; url: string }
@@ -12,7 +12,8 @@ export type ParsedCommand =
 const system = `You convert short cafe owner messages into a structured command for opening hours, address, name, or background.
 Strictly output ONLY JSON for one of these shapes:
 {"type":"set_hours","days":"Mon–Fri","open":"09:00","close":"19:00"}
-{"type":"set_hours_bulk","entries":[{"days":"Mon–Fri","open":"09:00","close":"19:00"},{"days":"Sat","open":"10:00","close":"17:00"},{"days":"Sun","open":"10:00","close":"16:00"}]}
+{"type":"set_hours","days":"Mon–Fri","closed":true}
+{"type":"set_hours_bulk","entries":[{"days":"Mon–Fri","open":"09:00","close":"19:00"},{"days":"Sat","open":"10:00","close":"17:00"},{"days":"Sun","closed":true}]}
 {"type":"set_address","address":"45 Vinyl Ave","city":"Helsinki"}
 {"type":"set_name","name":"Nooti Coffee"}
 {"type":"set_bg","url":"https://..."}
@@ -21,12 +22,13 @@ Rules:
 - Allowed days labels ONLY: "Mon–Fri", "Sat", "Sun".
 - When the user describes multiple day groups, use set_hours_bulk.
 - Accept flexible phrasing like "weekdays", "weekends" → map to Mon–Fri and Sat/Sun respectively.
+- If the user says a group is not open / closed, set {"closed": true} and omit open/close.
 - Accept 24h time with colon. If user says "an hour later on weekdays", and current hours are provided, adjust accordingly; otherwise infer reasonable times and prefer set_hours over unknown.
 - If nothing matches, return {"type":"unknown"}.`;
 
 export async function parseCommandWithAI(
   message: string,
-  context?: { hours?: { days: string; open: string; close: string }[] }
+  context?: { hours?: { days: string; open?: string; close?: string; closed?: boolean }[] }
 ): Promise<ParsedCommand> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {

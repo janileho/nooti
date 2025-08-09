@@ -56,9 +56,13 @@ export default async function Home() {
               {info.hours.map((h) => (
                 <li key={h.days} className="flex items-center justify-between text-[15px]">
                   <span className="text-[var(--foreground)]/92">{h.days}</span>
-                  <span className="tabular-nums text-[var(--foreground)]/92">
-                    {h.open} – {h.close}
-                  </span>
+                  {h.closed ? (
+                    <span className="uppercase tracking-widest text-[var(--foreground)]/70">Closed</span>
+                  ) : (
+                    <span className="tabular-nums text-[var(--foreground)]/92">
+                      {h.open} – {h.close}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

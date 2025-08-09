@@ -6,7 +6,7 @@ export type ShopInfo = {
   name: string;
   address: string;
   city: string;
-  hours: { days: string; open: string; close: string }[];
+  hours: { days: string; open?: string; close?: string; closed?: boolean }[];
   backgroundUrl: string;
 };
 
@@ -25,9 +25,9 @@ const DEFAULT_INFO: ShopInfo = {
   address: "123 Groove St",
   city: "Helsinki",
   hours: [
-    { days: "Mon–Fri", open: "08:00", close: "18:00" },
-    { days: "Sat", open: "09:00", close: "17:00" },
-    { days: "Sun", open: "10:00", close: "16:00" },
+    { days: "Mon–Fri", open: "08:00", close: "18:00", closed: false },
+    { days: "Sat", open: "09:00", close: "17:00", closed: false },
+    { days: "Sun", open: "10:00", close: "16:00", closed: false },
   ],
   backgroundUrl: "/retro-fallback",
 };

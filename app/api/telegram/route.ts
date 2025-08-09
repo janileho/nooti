@@ -41,9 +41,14 @@ export async function POST(req: Request) {
     switch (cmd.type) {
       case "set_hours": {
         const other = current.hours.filter((h) => h.days !== cmd.days);
-        const next = { ...current, hours: [...other, { days: cmd.days, open: cmd.open, close: cmd.close }] };
+        const entry = cmd.closed
+          ? { days: cmd.days, closed: true as const }
+          : { days: cmd.days, open: cmd.open!, close: cmd.close!, closed: false };
+        const next = { ...current, hours: [...other, entry] };
         await writeInfo(next);
-        confirmation = `Hours updated: <b>${cmd.days}</b> ${cmd.open}–${cmd.close}`;
+        confirmation = cmd.closed
+          ? `Hours updated: <b>${cmd.days}</b> closed`
+          : `Hours updated: <b>${cmd.days}</b> ${cmd.open}–${cmd.close}`;
         break;
       }
       case "set_hours_bulk": {
@@ -52,7 +57,10 @@ export async function POST(req: Request) {
         const merged = [...filtered];
         for (const e of cmd.entries) {
           const rest = merged.filter((h) => h.days !== e.days);
-          merged.splice(0, merged.length, ...rest, { days: e.days, open: e.open, close: e.close });
+          const item = e.closed
+            ? { days: e.days, closed: true as const }
+            : { days: e.days, open: e.open!, close: e.close!, closed: false };
+          merged.splice(0, merged.length, ...rest, item);
         }
         const next = { ...current, hours: merged };
         await writeInfo(next);

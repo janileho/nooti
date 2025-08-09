@@ -2,6 +2,14 @@ import Image from "next/image";
 export const dynamic = "force-dynamic";
 import { readInfo, type ShopInfo, type DayHours } from "@/lib/infoStore";
 
+function getISOWeek(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
 async function getInfo(): Promise<ShopInfo> {
   try {
     return await readInfo();
@@ -83,12 +91,12 @@ export default async function Home() {
             </ul>
           </div>
 
-          {(info as any).weeklyNote || (info as any).updatedAt ? (
+          {info.weeklyNote || info.updatedAt ? (
             <div className="mt-6 border-t border-[var(--foreground)]/20 pt-5 text-sm text-[var(--foreground)]/85">
-              { (info as any).weeklyNote ? <p>{(info as any).weeklyNote}</p> : null }
-              { (info as any).updatedAt ? (
+              {info.weeklyNote ? <p>{info.weeklyNote}</p> : null}
+              {info.updatedAt ? (
                 <p className="mt-1 text-[12px] opacity-70">
-                  Updated week {new Intl.DateTimeFormat("en-GB", { week: "numeric" } as any).format(new Date((info as any).updatedAt))}
+                  Updated week {getISOWeek(new Date(info.updatedAt))}
                 </p>
               ) : null }
             </div>

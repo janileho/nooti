@@ -1,7 +1,7 @@
 {
   "name": "Nöösi",
   "address": "Satakunnankatu 7",
-  "city": "Helsinki",
+  "city": "Tampere",
   "hours": [
     {
       "day": "Tue–Fri",
@@ -40,5 +40,5 @@
   ],
   "backgroundUrl": "/retro-fallback",
   "weeklyNote": "we got creme brule",
-  "updatedAt": "2025-08-09T18:13:24.084Z"
+  "updatedAt": "2025-08-09T18:13:37.477Z"
 }

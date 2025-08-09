@@ -9,7 +9,15 @@ export type ShopInfo = {
   backgroundUrl: string;
 };
 
-const DATA_FILE = path.join(process.cwd(), "data", "info.json");
+// Choose a writable base directory depending on the runtime.
+// - In serverless (e.g., Vercel), /var/task is read-only. Use TMPDIR (/tmp) or DATA_DIR if provided.
+// - Locally, use a "data" folder in the project root.
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION);
+const baseDirectory = isServerless
+  ? (process.env.DATA_DIR || process.env.TMPDIR || "/tmp")
+  : path.join(process.cwd(), "data");
+
+const DATA_FILE = path.join(baseDirectory, "info.json");
 
 const DEFAULT_INFO: ShopInfo = {
   name: "Nooti Coffee",

@@ -1,4 +1,5 @@
 import Image from "next/image";
+export const dynamic = "force-dynamic";
 import { readInfo, type ShopInfo } from "@/lib/infoStore";
 
 async function getInfo(): Promise<ShopInfo> {

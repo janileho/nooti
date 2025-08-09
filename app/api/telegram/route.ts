@@ -28,6 +28,8 @@ export async function POST(req: Request) {
   const update = (await req.json()) as Update;
   const chatId = update.message?.chat?.id;
   const text = update.message?.text?.trim() || "";
+  const isOkPrefixed = text.toLowerCase().startsWith("ok:");
+  const effectiveText = isOkPrefixed ? text.slice(3).trim() : text;
 
   if (!text) {
     return NextResponse.json({ ok: true });
@@ -35,7 +37,7 @@ export async function POST(req: Request) {
 
   try {
     const current = (await readInfo()) as ShopInfo;
-    const cmd = await parseCommandWithAI(text, { hours: current.hours });
+    const cmd = await parseCommandWithAI(effectiveText, { hours: current.hours });
     let confirmation = "";
     let ack: string | null = null;
 

@@ -55,6 +55,7 @@ export async function parseCommandWithAI(
   }
 
   const client = new OpenAI({ apiKey });
+  // Two-step approach: first try to parse; if unclear, generate a short conversational reply.
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
     temperature: 0,
@@ -97,10 +98,10 @@ export async function generateFriendlyReply(message: string, _context?: { name?:
     return `I’m here. I couldn’t map that to a command. Try: “set hours Mon–Fri 09:00-19:00”, “set address 45 Vinyl Ave, Helsinki”, “set name Nooti Coffee”, “set bg https://…”, or “push”.`;
   }
   const client = new OpenAI({ apiKey });
-  const sys = `You are a concise barista-bot. You respond in one or two short sentences, friendly and clear. If asked to change hours or address, suggest the exact command format, but do not invent facts.`;
+  const sys = `You are a friendly barista-bot. Keep messages short and warm. If the user seems to be deciding or chatting, respond conversationally and offer help. Only suggest exact command formats when specifically asked. Do not invent facts.`;
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",
-    temperature: 0.7,
+    temperature: 0.9,
     messages: [
       { role: "system", content: sys },
       { role: "user", content: message },

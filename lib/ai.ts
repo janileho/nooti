@@ -116,11 +116,12 @@ export async function formatWeeklyNote(input: string): Promise<string> {
     return trimmed;
   }
   const client = new OpenAI({ apiKey });
-  const sys = `Rewrite the cafe weekly menu note to be very concise, clean spelling and punctuation, and pleasant.
+  const sys = `You clean up a cafe note for display. Keep the user's structure and headings if any (e.g., "Weekly menu:"), preserve line breaks, fix spelling/accents, and keep it friendly.
 Rules:
-- Keep it on 1–2 short lines.
-- No markdown, no emojis.
-- If multiple items, separate by • or commas.
+- No emojis, no markdown.
+- Prefer short lines; keep under ~300 characters total.
+- If the user wrote a list, you may use • bullets or commas.
+- Keep original language.
 - Return plain text only.`;
   const completion = await client.chat.completions.create({
     model: "gpt-4o-mini",

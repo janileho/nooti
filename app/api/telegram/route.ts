@@ -123,7 +123,7 @@ export async function POST(req: Request) {
         ack = `Sending changes: weekly note → ${pretty}`;
         const next = { ...current, weeklyNote: pretty };
         await writeInfo(next);
-        confirmation = `Weekly menu: ${pretty}`;
+        confirmation = pretty;
         break;
       }
       case "push": {

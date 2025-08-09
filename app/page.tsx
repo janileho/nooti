@@ -113,7 +113,7 @@ export default async function Home() {
 
           {info.weeklyNote ? (
             <div className="mt-6 border-t border-[var(--foreground)]/20 pt-5 text-sm text-[var(--foreground)]/85">
-              <p>Week menu: {info.weeklyNote}</p>
+              <p style={{ whiteSpace: "pre-wrap" }}>{info.weeklyNote}</p>
             </div>
           ) : null}
 

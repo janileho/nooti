@@ -1,0 +1,23 @@
+{
+  "name": "Nooti Coffee",
+  "address": "123 Groove St",
+  "city": "Helsinki",
+  "hours": [
+    {
+      "days": "Sat",
+      "open": "09:00",
+      "close": "17:00"
+    },
+    {
+      "days": "Sun",
+      "open": "10:00",
+      "close": "16:00"
+    },
+    {
+      "days": "Mon–Fri",
+      "open": "09:00",
+      "close": "22:00"
+    }
+  ],
+  "backgroundUrl": "/retro-fallback"
+}

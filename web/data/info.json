@@ -4,19 +4,24 @@
   "city": "Helsinki",
   "hours": [
     {
-      "days": "Mon–Fri",
-      "open": "00:00",
-      "close": "00:00"
+      "days": "Mon–Thu",
+      "closed": true
+    },
+    {
+      "days": "Fri",
+      "open": "16:00",
+      "close": "22:00",
+      "closed": false
     },
     {
       "days": "Sat",
-      "open": "14:00",
-      "close": "20:00"
+      "open": "16:00",
+      "close": "22:00",
+      "closed": false
     },
     {
       "days": "Sun",
-      "open": "14:00",
-      "close": "20:00"
+      "closed": true
     }
   ],
   "backgroundUrl": "/retro-fallback"

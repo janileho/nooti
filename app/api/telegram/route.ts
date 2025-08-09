@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { readInfo, writeInfo, type ShopInfo, type DayKey, type DayHours } from "@/lib/infoStore";
 import { writeRepoFile } from "@/lib/githubContent";
 import { revalidatePath } from "next/cache";
-import { parseCommandWithAI, sendTelegramMessage, generateFriendlyReply } from "@/lib/ai";
+import { parseCommandWithAI, sendTelegramMessage, generateFriendlyReply, formatWeeklyNote } from "@/lib/ai";
 
 // Simple Telegram bot webhook handler
 // Expects messages like: "set hours Mon–Fri 09:00-19:00" or "set address 45 Vinyl Ave, Helsinki"
@@ -110,10 +110,11 @@ export async function POST(req: Request) {
         break;
       }
       case "set_note": {
-        ack = `Sending changes: weekly note → updated`;
-        const next = { ...current, weeklyNote: cmd.note };
+        const pretty = await formatWeeklyNote(cmd.note);
+        ack = `Sending changes: weekly note → ${pretty}`;
+        const next = { ...current, weeklyNote: pretty };
         await writeInfo(next);
-        confirmation = `Weekly note updated.`;
+        confirmation = `Weekly menu: ${pretty}`;
         break;
       }
       case "push": {

@@ -65,40 +65,55 @@ export default async function Home() {
               Opening Hours
             </h2>
             <ul className="mt-3 space-y-2">
-              {([
-                "Mon",
-                "Tue",
-                "Wed",
-                "Thu",
-                "Fri",
-                "Sat",
-                "Sun",
-              ] as DayHours["day"][]).map((day) => {
-                const h = info.hours.find((x) => x.day === day);
-                return (
-                  <li key={day} className="flex items-center justify-between text-[15px]">
-                    <span className="text-[var(--foreground)]/92">{day}</span>
-                    {h?.closed ? (
+              {(() => {
+                const order: DayHours["day"][] = [
+                  "Mon",
+                  "Tue",
+                  "Wed",
+                  "Thu",
+                  "Fri",
+                  "Sat",
+                  "Sun",
+                ];
+                const days = order.map((d) => info.hours.find((x) => x.day === d) || { day: d, closed: true });
+
+                type Group = { from: DayHours["day"]; to: DayHours["day"]; key: string; closed: boolean; open?: string; close?: string };
+                const groups: Group[] = [];
+                const makeKey = (h: Partial<DayHours>) => (h.closed ? "closed" : `open-${h.open}-${h.close}`);
+
+                for (const h of days) {
+                  const key = makeKey(h);
+                  if (groups.length === 0) {
+                    groups.push({ from: h.day as DayHours["day"], to: h.day as DayHours["day"], key, closed: Boolean(h.closed), open: h.open, close: h.close });
+                  } else {
+                    const last = groups[groups.length - 1];
+                    if (last.key === key) {
+                      last.to = h.day as DayHours["day"];
+                    } else {
+                      groups.push({ from: h.day as DayHours["day"], to: h.day as DayHours["day"], key, closed: Boolean(h.closed), open: h.open, close: h.close });
+                    }
+                  }
+                }
+
+                const label = (g: Group) => (g.from === g.to ? g.from : `${g.from}–${g.to}`);
+
+                return groups.map((g) => (
+                  <li key={`${g.from}-${g.to}-${g.key}`} className="flex items-center justify-between text-[15px]">
+                    <span className="text-[var(--foreground)]/92">{label(g)}</span>
+                    {g.closed ? (
                       <span className="uppercase tracking-widest text-[var(--foreground)]/70">Closed</span>
                     ) : (
-                      <span className="tabular-nums text-[var(--foreground)]/92">
-                        {h?.open} – {h?.close}
-                      </span>
+                      <span className="tabular-nums text-[var(--foreground)]/92">{g.open} – {g.close}</span>
                     )}
                   </li>
-                );
-              })}
+                ));
+              })()}
             </ul>
           </div>
 
-          {info.weeklyNote || info.updatedAt ? (
+          {info.weeklyNote ? (
             <div className="mt-6 border-t border-[var(--foreground)]/20 pt-5 text-sm text-[var(--foreground)]/85">
-              {info.weeklyNote ? <p>{info.weeklyNote}</p> : null}
-              {info.updatedAt ? (
-                <p className="mt-1 text-[12px] opacity-70">
-                  Updated week {getISOWeek(new Date(info.updatedAt))}
-                </p>
-              ) : null }
+              <p>Week menu: {info.weeklyNote}</p>
             </div>
           ) : null}
 

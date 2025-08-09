@@ -109,3 +109,27 @@ export async function generateFriendlyReply(message: string, _context?: { name?:
   return completion.choices[0]?.message?.content?.trim() || "Got it.";
 }
 
+export async function formatWeeklyNote(input: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const trimmed = input.trim();
+  if (!apiKey) {
+    return trimmed;
+  }
+  const client = new OpenAI({ apiKey });
+  const sys = `Rewrite the cafe weekly menu note to be very concise, clean spelling and punctuation, and pleasant.
+Rules:
+- Keep it on 1–2 short lines.
+- No markdown, no emojis.
+- If multiple items, separate by • or commas.
+- Return plain text only.`;
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.3,
+    messages: [
+      { role: "system", content: sys },
+      { role: "user", content: trimmed },
+    ],
+  });
+  return completion.choices[0]?.message?.content?.trim() || trimmed;
+}
+

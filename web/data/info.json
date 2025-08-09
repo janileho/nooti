@@ -1,7 +1,7 @@
 {
   "name": "Nöösi",
-  "address": "Satakunnankatu 7",
-  "city": "Tampere",
+  "address": "123 Groove St",
+  "city": "Helsinki",
   "hours": [
     {
       "day": "Tue–Fri",
@@ -39,6 +39,6 @@
     }
   ],
   "backgroundUrl": "/retro-fallback",
-  "weeklyNote": "we got creme brule",
-  "updatedAt": "2025-08-09T18:13:37.477Z"
+  "weeklyNote": "Tällä viikolla tarjolla creme brulee • macarons.",
+  "updatedAt": "2025-08-09T18:14:22.235Z"
 }

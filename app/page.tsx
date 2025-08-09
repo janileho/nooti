@@ -1,103 +1,74 @@
 import Image from "next/image";
+import { readInfo, type ShopInfo } from "@/lib/infoStore";
 
-export default function Home() {
+async function getInfo(): Promise<ShopInfo> {
+  try {
+    return await readInfo();
+  } catch {
+    return {
+      name: "Nooti Coffee",
+      address: "123 Groove St",
+      city: "Helsinki",
+      hours: [
+        { days: "Mon–Fri", open: "08:00", close: "18:00" },
+        { days: "Sat", open: "09:00", close: "17:00" },
+        { days: "Sun", open: "10:00", close: "16:00" },
+      ],
+      backgroundUrl:
+        "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=60",
+    };
+  }
+}
+
+export default async function Home() {
+  const info = await getInfo();
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="relative min-h-dvh w-full">
+      <div className="absolute inset-0 -z-10">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src={
+            info.backgroundUrl ||
+            "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=60"
+          }
+          alt="Warm retro coffee texture"
+          fill
           priority
+          className="object-cover opacity-70"
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/60" />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <main className="flex min-h-dvh items-center justify-center p-6 sm:p-10">
+        <div className="retro-panel rounded-xl px-6 py-7 sm:px-10 sm:py-10 max-w-xl w-full shadow-2xl/40 shadow-black/50">
+          <h1 className="retro-title text-4xl sm:text-5xl md:text-6xl text-[var(--accent)] drop-shadow-[0_2px_0_rgba(0,0,0,0.35)]">
+            {info.name}
+          </h1>
+          <p className="mt-2 text-sm tracking-wide text-[var(--foreground)]/85">
+            {info.address}, {info.city}
+          </p>
+
+          <div className="mt-6 border-t border-[var(--foreground)]/20 pt-6">
+            <h2 className="font-semibold uppercase tracking-widest text-xs text-[var(--accent-2)]">
+              Opening Hours
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {info.hours.map((h) => (
+                <li key={h.days} className="flex items-center justify-between text-[15px]">
+                  <span className="text-[var(--foreground)]/92">{h.days}</span>
+                  <span className="tabular-nums text-[var(--foreground)]/92">
+                    {h.open} – {h.close}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-8 flex items-center gap-3 text-xs text-[var(--foreground)]/70">
+            <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)]" />
+            <span>Est. 1969 • Vinyl, crema, conversation</span>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

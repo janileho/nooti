@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Warm retro palette */
+  --background: #1a120b; /* deep espresso */
+  --foreground: #ffeedd; /* warm cream */
+  --accent: #e2b714; /* mustard */
+  --accent-2: #c76d3a; /* terracotta */
 }
 
 @theme inline {
@@ -22,5 +25,17 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.retro-title {
+  font-family: var(--font-shrikhand), var(--font-geist-sans), ui-sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.retro-panel {
+  backdrop-filter: blur(2px);
+  background: color-mix(in oklab, var(--background) 70%, black 30%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 35%, transparent);
 }

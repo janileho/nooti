@@ -28,15 +28,15 @@
       "closed": true
     },
     {
-      "day": "Sat",
+      "day": "Sun",
       "closed": true
     },
     {
-      "day": "Sun",
+      "day": "Sat",
       "closed": true
     }
   ],
   "backgroundUrl": "/retro-fallback",
   "weeklyNote": "Tarjolla tällä viikolla:  \nTuoretta crème brûléeä",
-  "updatedAt": "2025-08-09T18:37:50.087Z"
+  "updatedAt": "2025-08-09T18:38:47.909Z"
 }

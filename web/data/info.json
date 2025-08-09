@@ -1,6 +1,6 @@
 {
   "name": "Nöösi",
-  "address": "123 Groove St",
+  "address": "Satakunnankatu 7",
   "city": "Helsinki",
   "hours": [
     {
@@ -40,5 +40,5 @@
   ],
   "backgroundUrl": "/retro-fallback",
   "weeklyNote": "we got creme brule",
-  "updatedAt": "2025-08-09T18:09:00.111Z"
+  "updatedAt": "2025-08-09T18:13:24.084Z"
 }

@@ -35,6 +35,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  // Optional admin allowlist
+  const adminIds = (process.env.TELEGRAM_ADMIN_IDS || "").trim();
+  if (adminIds) {
+    const ids = adminIds.split(/[,\s]+/).filter(Boolean).map((s) => Number(s));
+    if (!ids.includes(Number(chatId))) {
+      return new NextResponse("Forbidden", { status: 403 });
+    }
+  }
+
   try {
     const current = (await readInfo()) as ShopInfo;
     const cmd = await parseCommandWithAI(effectiveText, { hours: current.hours });
@@ -60,10 +69,29 @@ export async function POST(req: Request) {
           ? { day: cmd.days as DayKey, closed: true as const }
           : { day: cmd.days as DayKey, open: cmd.open!, close: cmd.close!, closed: false };
         const next = { ...current, hours: [...other, entry] };
-        await writeInfo(next);
-        confirmation = cmd.closed
-          ? `Hours updated: <b>${cmd.days}</b> closed`
-          : `Hours updated: <b>${cmd.days}</b> ${cmd.open}–${cmd.close}`;
+        if (isOkPrefixed || (process.env.TELEGRAM_AUTO_APPLY || "").toLowerCase() === "true") {
+          await writeInfo(next);
+          confirmation = cmd.closed
+            ? `Hours updated: <b>${cmd.days}</b> closed`
+            : `Hours updated: <b>${cmd.days}</b> ${cmd.open}–${cmd.close}`;
+        } else {
+          // preview only
+          const summary = ((): string => {
+            const order: DayHours["day"][] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            const days = order.map((d) => next.hours.find((x) => x.day === d) || { day: d, closed: true });
+            type Group = { from: DayHours["day"]; to: DayHours["day"]; closed: boolean; open?: string; close?: string };
+            const groups: Group[] = [];
+            const keyOf = (h: Partial<DayHours>) => (h.closed ? "closed" : `open-${h.open}-${h.close}`);
+            for (const h of days) {
+              const key = keyOf(h);
+              const last = groups[groups.length - 1];
+              if (last && keyOf(last) === key) last.to = h.day as DayHours["day"]; else groups.push({ from: h.day as DayHours["day"], to: h.day as DayHours["day"], closed: Boolean(h.closed), open: h.open, close: h.close });
+            }
+            const label = (g: Group) => (g.from === g.to ? g.from : `${g.from}–${g.to}`);
+            return groups.map((g) => (g.closed ? `${label(g)}: Closed` : `${label(g)}: ${g.open}–${g.close}`)).join("\n");
+          })();
+          confirmation = `Preview:\n${summary}`;
+        }
         break;
       }
       case "set_hours_bulk": {

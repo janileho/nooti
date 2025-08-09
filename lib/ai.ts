@@ -6,6 +6,7 @@ export type ParsedCommand =
   | { type: "set_address"; address: string; city: string }
   | { type: "set_name"; name: string }
   | { type: "set_bg"; url: string }
+  | { type: "set_note"; note: string }
   | { type: "push" }
   | { type: "unknown" };
 
@@ -17,6 +18,7 @@ Strictly output ONLY JSON for one of these shapes:
 {"type":"set_address","address":"45 Vinyl Ave","city":"Helsinki"}
 {"type":"set_name","name":"Nooti Coffee"}
 {"type":"set_bg","url":"https://..."}
+{"type":"set_note","note":"This week: lemon crème brûlée and macaronis"}
 {"type":"push"}
 Rules:
 - Allowed days labels ONLY: "Mon–Fri", "Sat", "Sun".

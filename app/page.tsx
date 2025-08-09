@@ -83,6 +83,17 @@ export default async function Home() {
             </ul>
           </div>
 
+          {(info as any).weeklyNote || (info as any).updatedAt ? (
+            <div className="mt-6 border-t border-[var(--foreground)]/20 pt-5 text-sm text-[var(--foreground)]/85">
+              { (info as any).weeklyNote ? <p>{(info as any).weeklyNote}</p> : null }
+              { (info as any).updatedAt ? (
+                <p className="mt-1 text-[12px] opacity-70">
+                  Updated week {new Intl.DateTimeFormat("en-GB", { week: "numeric" } as any).format(new Date((info as any).updatedAt))}
+                </p>
+              ) : null }
+            </div>
+          ) : null}
+
           <div className="mt-8 flex items-center gap-3 text-xs text-[var(--foreground)]/70">
             <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)]" />
             <span>Est. 1969 • Vinyl, crema, conversation</span>

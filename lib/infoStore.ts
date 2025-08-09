@@ -11,6 +11,8 @@ export type ShopInfo = {
   city: string;
   hours: DayHours[];
   backgroundUrl: string;
+  weeklyNote?: string;
+  updatedAt?: string;
 };
 
 // Choose a writable base directory depending on the runtime.
@@ -37,6 +39,7 @@ const DEFAULT_INFO: ShopInfo = {
     { day: "Sun", open: "10:00", close: "16:00", closed: false },
   ],
   backgroundUrl: "/retro-fallback",
+  weeklyNote: "",
 };
 
 function getRemoteInfoUrl() {
@@ -108,7 +111,8 @@ export async function readInfo(): Promise<ShopInfo> {
 
 export async function writeInfo(next: ShopInfo): Promise<void> {
   await ensureSeed();
-  await fs.writeFile(DATA_FILE, JSON.stringify(next, null, 2), "utf8");
+  const nextWithMeta: ShopInfo = { ...next, updatedAt: new Date().toISOString() };
+  await fs.writeFile(DATA_FILE, JSON.stringify(nextWithMeta, null, 2), "utf8");
   // Persist to GitHub as the source of truth for serverless environments
   const token = process.env.GITHUB_TOKEN;
   if (token) {
@@ -122,7 +126,7 @@ export async function writeInfo(next: ShopInfo): Promise<void> {
       token,
       path: "web/data/info.json",
       message: `chore: update site info ${new Date().toISOString()}`,
-      content: JSON.stringify(next, null, 2),
+      content: JSON.stringify(nextWithMeta, null, 2),
     });
   }
 }

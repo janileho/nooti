@@ -109,6 +109,13 @@ export async function POST(req: Request) {
         confirmation = `Background updated.`;
         break;
       }
+      case "set_note": {
+        ack = `Sending changes: weekly note → updated`;
+        const next = { ...current, weeklyNote: cmd.note };
+        await writeInfo(next);
+        confirmation = `Weekly note updated.`;
+        break;
+      }
       case "push": {
         ack = `Sending changes: pushing current info to GitHub…`;
         const owner = process.env.GITHUB_OWNER || "janileho";

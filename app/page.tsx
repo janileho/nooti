@@ -16,8 +16,8 @@ async function getInfo(): Promise<ShopInfo> {
   } catch {
     return {
       name: "Nöösi",
-      address: "123 Groove St",
-      city: "Helsinki",
+      address: "Satakunnankatu 7",
+      city: "Tampere",
       hours: [
         { day: "Mon", open: "08:00", close: "18:00", closed: false },
         { day: "Tue", open: "08:00", close: "18:00", closed: false },
@@ -27,8 +27,7 @@ async function getInfo(): Promise<ShopInfo> {
         { day: "Sat", open: "09:00", close: "17:00", closed: false },
         { day: "Sun", open: "10:00", close: "16:00", closed: false },
       ],
-      backgroundUrl:
-        "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=60",
+      backgroundUrl: "/bg.jpg",
     };
   }
 }
@@ -39,32 +38,31 @@ export default async function Home() {
     <div className="relative min-h-dvh w-full">
       <div className="absolute inset-0 -z-10">
         <Image
-          src={
-            info.backgroundUrl ||
-            "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1600&q=60"
-          }
+          src="/cafe-noosi.jpg"
           alt="Warm retro coffee texture"
           fill
           priority
           className="object-cover opacity-70"
         />
+        <div className="grainy-overlay absolute inset-0 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/60" />
       </div>
 
-      <main className="flex min-h-dvh items-center justify-center p-6 sm:p-10">
-        <div className="retro-panel rounded-xl px-6 py-7 sm:px-10 sm:py-10 max-w-xl w-full shadow-2xl/40 shadow-black/50">
-          <h1 className="retro-title text-4xl sm:text-5xl md:text-6xl text-[var(--accent)] drop-shadow-[0_2px_0_rgba(0,0,0,0.35)]">
+      <main className="flex min-h-dvh items-center justify-center p-6 sm:p-10 enter-fade">
+        <div className="retro-panel panel-art sharp-panel px-6 py-7 sm:px-10 sm:py-10 max-w-xl w-full enter-rise">
+          <h1 className="retro-title metallic-text text-4xl sm:text-5xl md:text-6xl enter-rise">
             {info.name}
           </h1>
           <p className="mt-2 text-sm tracking-wide text-[var(--foreground)]/85">
             {info.address}, {info.city}
           </p>
 
-          <div className="mt-6 border-t border-[var(--foreground)]/20 pt-6">
-            <h2 className="font-semibold uppercase tracking-widest text-xs text-[var(--accent-2)]">
+          <div className="mt-6 pt-6">
+            <div className="hairline" />
+            <h2 className="label-bauhaus uppercase tracking-widest text-xs text-[var(--accent-2)]">
               Opening Hours
             </h2>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-2 stagger-list thin-list">
               {(() => {
                 const order: DayHours["day"][] = [
                   "Mon",
@@ -112,14 +110,15 @@ export default async function Home() {
           </div>
 
           {info.weeklyNote ? (
-            <div className="mt-6 border-t border-[var(--foreground)]/20 pt-5 text-sm text-[var(--foreground)]/85">
+            <div className="mt-6 pt-5 text-sm text-[var(--foreground)]/85">
+              <div className="hairline mb-3" />
               <p style={{ whiteSpace: "pre-wrap" }}>{info.weeklyNote}</p>
             </div>
           ) : null}
 
-          <div className="mt-8 flex items-center gap-3 text-xs text-[var(--foreground)]/70">
-            <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)]" />
-            <span>Est. 1969 • Vinyl, crema, conversation</span>
+          <div className="mt-8 flex items-center gap-3 text-xs text-[var(--foreground)]/70 copy-future">
+            <span className="inline-block h-2 w-2 rounded-full bg-[var(--accent)] shadow-[0_0_8px_rgba(226,183,20,0.5)]" />
+            <span>Tarjolla viiniä, kahvia sekä tuoreita leivonnaisia!</span>
           </div>
         </div>
       </main>

@@ -38,7 +38,7 @@ const DEFAULT_INFO: ShopInfo = {
     { day: "Sat", open: "09:00", close: "17:00", closed: false },
     { day: "Sun", open: "10:00", close: "16:00", closed: false },
   ],
-  backgroundUrl: "/retro-fallback",
+  backgroundUrl: "/cafe-noosi.jpg",
   weeklyNote: "",
 };
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Shrikhand } from "next/font/google";
+import { Geist, Geist_Mono, Shrikhand, Space_Grotesk, League_Spartan } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,6 +19,18 @@ const shrikhand = Shrikhand({
   display: "swap",
 });
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-future",
+  display: "swap",
+});
+
+const leagueSpartan = League_Spartan({
+  subsets: ["latin"],
+  variable: "--font-bauhaus",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Nooti Coffee — 60s/70s Vibes",
   description: "Minimal retro coffeeshop page with hours and location.",
@@ -32,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${shrikhand.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${shrikhand.variable} ${spaceGrotesk.variable} ${leagueSpartan.variable} antialiased`}
       >
         {children}
       </body>

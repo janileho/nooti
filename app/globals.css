@@ -3,9 +3,14 @@
 :root {
   /* Warm retro palette */
   --background: #1a120b; /* deep espresso */
-  --foreground: #ffeedd; /* warm cream */
-  --accent: #e2b714; /* mustard */
-  --accent-2: #c76d3a; /* terracotta */
+  --foreground: #fff3d6; /* warmer cream */
+  --accent: #f2c84b; /* golden mustard */
+  --accent-2: #d08b3e; /* ochre */
+  /* Subtle metallic palette */
+  --metal-1: #fff6da;
+  --metal-2: #ffe39a;
+  --metal-3: #f2c652;
+  --metal-4: #fff1b3; /* soft light gold (avoid pure white) */
 }
 
 @theme inline {
@@ -30,12 +35,180 @@ body {
 }
 
 .retro-title {
-  font-family: var(--font-shrikhand), var(--font-geist-sans), ui-sans-serif;
+  /* Cafeism headline: retro script fused with subtle futurism */
+  font-family: var(--font-shrikhand), var(--font-bauhaus), var(--font-future), var(--font-geist-sans), ui-sans-serif;
   letter-spacing: 0.5px;
 }
 
 .retro-panel {
+  position: relative;
   backdrop-filter: blur(2px);
   background: color-mix(in oklab, var(--background) 70%, black 30%);
-  border: 1px solid color-mix(in oklab, var(--foreground) 35%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent);
+  /* subtle inner/outer shadow for depth */
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--metal-1) 25%, transparent),
+    0 10px 30px -20px rgba(0,0,0,0.6);
+}
+
+/* Artistic overlay for the panel: warm vignette + fine diagonal micro-grid */
+.panel-art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in oklab, var(--accent) 20%, transparent) 0%, transparent 60%),
+    repeating-linear-gradient(135deg, color-mix(in oklab, var(--metal-1) 10%, transparent) 0 1px, transparent 1px 12px);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  mask-image: radial-gradient(120% 120% at 50% 50%, black 60%, transparent 100%);
+}
+
+.panel-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: conic-gradient(from 210deg at 85% 15%, color-mix(in oklab, var(--metal-2) 12%, transparent), transparent 35%);
+  opacity: 0.25;
+}
+
+/* Thin, sharp, chamfered panel styling (Bauhaus/retrofuturistic) */
+.sharp-panel {
+  border-radius: 0;
+  position: relative;
+  clip-path: polygon(
+    10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px),
+    calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px), 0% 10px
+  );
+}
+.sharp-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in oklab, var(--accent) 60%, transparent);
+  pointer-events: none;
+}
+.sharp-panel::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid color-mix(in oklab, var(--metal-2) 35%, transparent);
+  pointer-events: none;
+}
+
+/* Ultra-thin list separators */
+.thin-list li + li {
+  border-top: 1px solid color-mix(in oklab, var(--foreground) 18%, transparent);
+  padding-top: 6px;
+  margin-top: 6px;
+}
+
+/* Bauhaus-inspired labels */
+.label-bauhaus {
+  font-family: var(--font-bauhaus), var(--font-geist-sans), ui-sans-serif;
+  letter-spacing: 0.12em;
+}
+
+/* Retrofuturistic micro-copy */
+.copy-future {
+  font-family: var(--font-future), var(--font-geist-sans), ui-sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Metallic animated text sheen */
+.metallic-text {
+  background-image: linear-gradient(
+    110deg,
+    var(--metal-3) 0%,
+    var(--metal-2) 22%,
+    var(--metal-4) 36%,
+    var(--metal-1) 48%,
+    var(--metal-2) 62%,
+    var(--metal-3) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sheen 12s linear infinite;
+}
+
+@keyframes sheen {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Hairline gradient separator */
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--metal-1) 30%, transparent),
+    color-mix(in oklab, var(--metal-2) 30%, transparent),
+    transparent
+  );
+}
+
+/* Calm entry animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.enter-fade {
+  animation: fadeIn 900ms ease-out both;
+}
+
+.enter-rise {
+  animation: riseIn 950ms cubic-bezier(.16,.84,.44,1) both;
+}
+
+.delay-100ms { animation-delay: 100ms; }
+.delay-200ms { animation-delay: 200ms; }
+.delay-300ms { animation-delay: 300ms; }
+.delay-400ms { animation-delay: 400ms; }
+
+/* Stagger lists */
+.stagger-list > li {
+  opacity: 0;
+  animation: riseIn 700ms ease-out forwards;
+}
+.stagger-list > li:nth-child(1) { animation-delay: 60ms; }
+.stagger-list > li:nth-child(2) { animation-delay: 120ms; }
+.stagger-list > li:nth-child(3) { animation-delay: 180ms; }
+.stagger-list > li:nth-child(4) { animation-delay: 240ms; }
+.stagger-list > li:nth-child(5) { animation-delay: 300ms; }
+.stagger-list > li:nth-child(6) { animation-delay: 360ms; }
+.stagger-list > li:nth-child(7) { animation-delay: 420ms; }
+
+/* Subtle grain overlay */
+.grainy-overlay {
+  background-image: url('/noise.svg');
+  background-repeat: repeat;
+  background-size: 320px 320px;
+  mix-blend-mode: overlay;
+  opacity: 0.12;
+  animation: grainShift 9s linear infinite;
+}
+
+@keyframes grainShift {
+  0% { background-position: 0 0; }
+  50% { background-position: 120px 60px; }
+  100% { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

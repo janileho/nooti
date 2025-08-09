@@ -29,9 +29,7 @@
     },
     {
       "day": "Sat",
-      "open": "16:00",
-      "close": "20:00",
-      "closed": false
+      "closed": true
     },
     {
       "day": "Sun",
@@ -40,5 +38,5 @@
   ],
   "backgroundUrl": "/retro-fallback",
   "weeklyNote": "Tarjolla tällä viikolla:  \nTuoretta crème brûléeä",
-  "updatedAt": "2025-08-09T18:28:27.435Z"
+  "updatedAt": "2025-08-09T18:32:01.060Z"
 }

@@ -2,22 +2,32 @@ import OpenAI from "openai";
 
 export type ParsedCommand =
   | { type: "set_hours"; days: string; open: string; close: string }
+  | { type: "set_hours_bulk"; entries: { days: "Mon–Fri" | "Sat" | "Sun"; open: string; close: string }[] }
   | { type: "set_address"; address: string; city: string }
   | { type: "set_name"; name: string }
   | { type: "set_bg"; url: string }
   | { type: "push" }
   | { type: "unknown" };
 
-const system = `You convert short cafe owner messages into one structured command.
-Return ONLY JSON matching one of these shapes:
+const system = `You convert short cafe owner messages into a structured command for opening hours, address, name, or background.
+Strictly output ONLY JSON for one of these shapes:
 {"type":"set_hours","days":"Mon–Fri","open":"09:00","close":"19:00"}
+{"type":"set_hours_bulk","entries":[{"days":"Mon–Fri","open":"09:00","close":"19:00"},{"days":"Sat","open":"10:00","close":"17:00"},{"days":"Sun","open":"10:00","close":"16:00"}]}
 {"type":"set_address","address":"45 Vinyl Ave","city":"Helsinki"}
 {"type":"set_name","name":"Nooti Coffee"}
 {"type":"set_bg","url":"https://..."}
 {"type":"push"}
-If the user message isn't about these, return {"type":"unknown"}.`;
+Rules:
+- Allowed days labels ONLY: "Mon–Fri", "Sat", "Sun".
+- When the user describes multiple day groups, use set_hours_bulk.
+- Accept flexible phrasing like "weekdays", "weekends" → map to Mon–Fri and Sat/Sun respectively.
+- Accept 24h time with colon. If user says "an hour later on weekdays", and current hours are provided, adjust accordingly; otherwise infer reasonable times and prefer set_hours over unknown.
+- If nothing matches, return {"type":"unknown"}.`;
 
-export async function parseCommandWithAI(message: string): Promise<ParsedCommand> {
+export async function parseCommandWithAI(
+  message: string,
+  context?: { hours?: { days: string; open: string; close: string }[] }
+): Promise<ParsedCommand> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     // Fallback: very light local heuristics when no API key
@@ -46,6 +56,9 @@ export async function parseCommandWithAI(message: string): Promise<ParsedCommand
     temperature: 0,
     messages: [
       { role: "system", content: system },
+      ...(context?.hours
+        ? [{ role: "system", content: `Current hours: ${JSON.stringify(context.hours)}` } as const]
+        : []),
       { role: "user", content: message },
     ],
     response_format: { type: "json_object" },

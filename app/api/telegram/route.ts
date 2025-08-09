@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
   try {
     const current = (await readInfo()) as ShopInfo;
-    const cmd = await parseCommandWithAI(text);
+    const cmd = await parseCommandWithAI(text, { hours: current.hours });
     let confirmation = "";
 
     switch (cmd.type) {
@@ -44,6 +44,19 @@ export async function POST(req: Request) {
         const next = { ...current, hours: [...other, { days: cmd.days, open: cmd.open, close: cmd.close }] };
         await writeInfo(next);
         confirmation = `Hours updated: <b>${cmd.days}</b> ${cmd.open}–${cmd.close}`;
+        break;
+      }
+      case "set_hours_bulk": {
+        const labels = new Set(["Mon–Fri", "Sat", "Sun"]);
+        const filtered = current.hours.filter((h) => !labels.has(h.days));
+        const merged = [...filtered];
+        for (const e of cmd.entries) {
+          const rest = merged.filter((h) => h.days !== e.days);
+          merged.splice(0, merged.length, ...rest, { days: e.days, open: e.open, close: e.close });
+        }
+        const next = { ...current, hours: merged };
+        await writeInfo(next);
+        confirmation = `Hours updated.`;
         break;
       }
       case "set_address": {

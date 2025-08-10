@@ -9,48 +9,38 @@
     },
     {
       "day": "Mon",
-      "open": "00:00",
-      "close": "23:59",
-      "closed": false
+      "closed": true
     },
     {
       "day": "Tue",
-      "open": "00:00",
-      "close": "23:59",
-      "closed": false
+      "closed": true
     },
     {
       "day": "Wed",
-      "open": "00:00",
-      "close": "23:59",
-      "closed": false
+      "closed": true
     },
     {
       "day": "Thu",
-      "open": "00:00",
-      "close": "23:59",
-      "closed": false
+      "closed": true
     },
     {
       "day": "Fri",
-      "open": "00:00",
-      "close": "23:59",
-      "closed": false
+      "closed": true
     },
     {
       "day": "Sat",
-      "open": "00:00",
-      "close": "23:59",
+      "open": "12:00",
+      "close": "20:00",
       "closed": false
     },
     {
       "day": "Sun",
-      "open": "00:00",
-      "close": "23:59",
+      "open": "14:00",
+      "close": "20:00",
       "closed": false
     }
   ],
   "backgroundUrl": "https://images.pexels.com/photos/952670/pexels-photo-952670.jpeg",
   "weeklyNote": "Tarjolla tällä viikolla:  \nTuoretta crème brûléeä",
-  "updatedAt": "2025-08-10T09:15:42.851Z"
+  "updatedAt": "2025-08-10T14:23:55.774Z"
 }
